@@ -5,15 +5,27 @@ export const AuthContext = createContext();
 
 export default function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
+  // Restore user on refresh
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (token) setUser(jwtDecode(token));
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setUser(decoded); // { id, role }
+      } catch (err) {
+        console.error("Invalid token:", err);
+        localStorage.removeItem("token");
+      }
+    }
+    setLoading(false);
   }, []);
 
   const login = (token) => {
     localStorage.setItem("token", token);
-    setUser(jwtDecode(token));
+    const decoded = jwtDecode(token);
+    setUser(decoded);
   };
 
   const logout = () => {
@@ -22,8 +34,8 @@ export default function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
-      {children}
+    <AuthContext.Provider value={{ user, login, logout, loading }}>
+      {!loading && children}
     </AuthContext.Provider>
   );
 }

@@ -1,12 +1,11 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-
-const PolicySchema = new mongoose.Schema({
+const PolicySchema = new mongoose.Schema(
+  {
     title: { type: String, required: true },
-    content: { type: String },
-    uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin' },
-    uploadedAt: { type: Date, default: Date.now }
-});
+    content: { type: String, required: true },
+  },
+  { timestamps: true }
+);
 
-
-export default mongoose.model('Policy', PolicySchema);
+export default mongoose.model("Policy", PolicySchema);

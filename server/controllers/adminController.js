@@ -9,20 +9,20 @@ export const getDashboardStats = async (req, res) => {
     const totalFarmers = await Farmer.countDocuments();
     const totalPolicies = await Policy.countDocuments();
 
-    // Active today
+    // Active today = farmers created in last 24 hours
     const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const activeToday = await Farmer.countDocuments({
       createdAt: { $gte: dayAgo },
     });
 
-    // Avg predicted price (if field exists)
+    // Average predicted price
     const avgPriceAgg = await Farmer.aggregate([
       { $match: { lastPredictedPrice: { $exists: true } } },
       { $group: { _id: null, avg: { $avg: "$lastPredictedPrice" } } },
     ]);
     const avgPrice = avgPriceAgg[0]?.avg || null;
 
-    // Signups last 30 days
+    // Signups in last 30 days
     const thirty = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const signups = await Farmer.aggregate([
       { $match: { createdAt: { $gte: thirty } } },
@@ -65,7 +65,6 @@ export const getFarmers = async (req, res) => {
     const page = parseInt(req.query.page || "1");
     const limit = parseInt(req.query.limit || "10");
     const search = req.query.search || "";
-    const state = req.query.state || "";
 
     const filter = {};
 
@@ -77,13 +76,16 @@ export const getFarmers = async (req, res) => {
       ];
     }
 
-    if (state) filter.state = state;
-
     const skip = (page - 1) * limit;
 
+    // 🔥 FIX: include "active" field explicitly
     const [total, farmers] = await Promise.all([
       Farmer.countDocuments(filter),
-      Farmer.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),
+      Farmer.find(filter)
+        .select("name phone email state active createdAt")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
     ]);
 
     res.json({ total, page, limit, farmers });
