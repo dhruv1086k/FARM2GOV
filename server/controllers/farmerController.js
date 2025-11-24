@@ -1,37 +1,46 @@
-import Farmer from '../models/Farmer.js';
-
+import Farmer from "../models/Farmer.js";
 
 export const getAllFarmers = async (req, res) => {
-    try {
-        const farmers = await Farmer.find().select('-password');
-        res.json(farmers);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Server error' });
-    }
+  try {
+    const farmers = await Farmer.find().select("-password");
+    res.json(farmers);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
 };
-
 
 export const getFarmerProfile = async (req, res) => {
-    try {
-        const farmer = await Farmer.findById(req.user.id).select('-password');
-        if (!farmer) return res.status(404).json({ message: 'Not found' });
-        res.json(farmer);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Server error' });
+  try {
+    const farmer = await Farmer.findById(req.user.id).select("-password");
+    if (!farmer) return res.status(404).json({ message: "Not found" });
+
+    // ❗ BLOCK DASHBOARD ACCESS IF DEACTIVATED
+    if (!farmer.active) {
+      return res.status(403).json({
+        message: "Your account has been deactivated. Contact support.",
+      });
     }
+
+    res.json(farmer);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
 };
 
-
 export const updateFarmer = async (req, res) => {
-    try {
-        const updates = req.body;
-        delete updates.password; // handle password change separately
-        const farmer = await Farmer.findByIdAndUpdate(req.user.id, updates, { new: true }).select('-password');
-        res.json(farmer);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Server error' });
-    }
+  try {
+    const updates = req.body;
+    delete updates.password;
+
+    const farmer = await Farmer.findByIdAndUpdate(req.user.id, updates, {
+      new: true,
+    }).select("-password");
+
+    res.json(farmer);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
 };

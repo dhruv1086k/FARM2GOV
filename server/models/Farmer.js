@@ -15,16 +15,17 @@ const FarmerSchema = new mongoose.Schema(
     state: { type: String },
     language: { type: String, default: "en" },
 
-    // 🌟 REQUIRED FOR YOUR DASHBOARD
     active: { type: Boolean, default: true },
 
-    // 🌟 Used for the Avg Price Chart
+    // ✔ REQUIRED FOR ACTIVE TODAY
+    lastLogin: { type: Date, default: null },
+
     lastPredictedPrice: { type: Number, default: null },
 
     crops: [CropSchema],
   },
   {
-    timestamps: true, // adds `createdAt` & `updatedAt`
+    timestamps: true,
   }
 );
 

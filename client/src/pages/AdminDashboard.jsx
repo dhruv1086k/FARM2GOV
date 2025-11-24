@@ -15,15 +15,6 @@ import {
 import { saveAs } from "file-saver";
 import Papa from "papaparse";
 
-const COLORS = [
-  "#16a34a",
-  "#0ea5e9",
-  "#f97316",
-  "#8b5cf6",
-  "#ef4444",
-  "#0d9488",
-];
-
 export default function AdminDashboard() {
   const qc = useQueryClient();
 
@@ -31,13 +22,13 @@ export default function AdminDashboard() {
   const limit = 10;
   const [search, setSearch] = useState("");
 
-  // ========= FETCH STATS =========
+  // ===== STATS =====
   const { data: stats } = useQuery(["adminStats"], async () => {
     const res = await API.get("/admin/stats");
     return res.data;
   });
 
-  // ========= FETCH FARMERS =========
+  // ===== FARMERS =====
   const { data: farmersData } = useQuery(
     ["farmers", page, search],
     async () => {
@@ -48,7 +39,7 @@ export default function AdminDashboard() {
     }
   );
 
-  // CHART DATA
+  // ===== CHART DATA =====
   const chartData = useMemo(() => {
     return (
       stats?.signups?.map((i) => ({
@@ -58,21 +49,26 @@ export default function AdminDashboard() {
     );
   }, [stats]);
 
-  // CSV Export
+  // ===== EXPORT CSV =====
   const exportCSV = () => {
     if (!farmersData?.farmers) return;
+
     const csv = Papa.unparse(
       farmersData.farmers.map((f) => ({
         name: f.name,
         phone: f.phone,
         email: f.email,
         state: f.state,
+        active: f.active ? "Active" : "Inactive",
         createdAt: f.createdAt,
+        lastLogin: f.lastLogin || "Never",
       }))
     );
+
     saveAs(new Blob([csv]), "farmers.csv");
   };
 
+  // ===== TOGGLE ACTIVE =====
   const toggleActive = async (id) => {
     await API.post(`/admin/farmers/${id}/toggle-active`);
     qc.invalidateQueries(["farmers"]);
@@ -81,14 +77,13 @@ export default function AdminDashboard() {
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      {/* HEADER */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-extrabold text-gray-800">
           Admin Dashboard
         </h1>
       </div>
 
-      {/* 🔥 --- ADMIN NAVIGATION BUTTONS --- 🔥 */}
+      {/* Navigation Buttons */}
       <div className="flex flex-wrap gap-3 mb-8">
         <Link
           to="/admin/dashboard"
@@ -119,14 +114,14 @@ export default function AdminDashboard() {
         </button>
       </div>
 
-      {/* STATS */}
+      {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <Card title="Total Farmers" value={stats?.totalFarmers ?? "..."} />
         <Card title="Active Today" value={stats?.activeToday ?? "..."} />
         <Card title="Policies" value={stats?.totalPolicies ?? "..."} />
       </div>
 
-      {/* SIGNUP CHART */}
+      {/* Chart */}
       <div className="bg-white p-4 rounded-xl shadow mb-8">
         <h3 className="text-lg font-semibold mb-2">Signups (Last 30 Days)</h3>
         <div style={{ height: 260 }}>
@@ -153,7 +148,7 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* FARMERS TABLE */}
+      {/* Farmers Table */}
       <div className="bg-white p-4 rounded-xl shadow">
         <div className="flex items-center justify-between mb-4">
           <div className="flex gap-2">

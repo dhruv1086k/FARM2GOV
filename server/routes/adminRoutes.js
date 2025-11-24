@@ -9,7 +9,6 @@ import {
 
 const router = express.Router();
 
-// Admin-only protected routes
 router.get("/stats", auth, adminOnly, getDashboardStats);
 router.get("/farmers", auth, adminOnly, getFarmers);
 router.post("/farmers/:id/toggle-active", auth, adminOnly, toggleFarmerActive);

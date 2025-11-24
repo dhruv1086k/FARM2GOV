@@ -9,21 +9,16 @@ export const getDashboardStats = async (req, res) => {
     const totalFarmers = await Farmer.countDocuments();
     const totalPolicies = await Policy.countDocuments();
 
-    // Active today = farmers created in last 24 hours
+    // ✔ Active today = farmers who logged in today
     const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
     const activeToday = await Farmer.countDocuments({
-      createdAt: { $gte: dayAgo },
+      lastLogin: { $gte: dayAgo }, // 🔥 FIXED
     });
 
-    // Average predicted price
-    const avgPriceAgg = await Farmer.aggregate([
-      { $match: { lastPredictedPrice: { $exists: true } } },
-      { $group: { _id: null, avg: { $avg: "$lastPredictedPrice" } } },
-    ]);
-    const avgPrice = avgPriceAgg[0]?.avg || null;
-
-    // Signups in last 30 days
+    // ✔ Signups Last 30 Days (createdAt)
     const thirty = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
     const signups = await Farmer.aggregate([
       { $match: { createdAt: { $gte: thirty } } },
       {
@@ -35,24 +30,14 @@ export const getDashboardStats = async (req, res) => {
       { $sort: { _id: 1 } },
     ]);
 
-    // Crop distribution
-    const cropDist = await Farmer.aggregate([
-      { $unwind: "$crops" },
-      { $group: { _id: "$crops.name", count: { $sum: 1 } } },
-      { $sort: { count: -1 } },
-      { $limit: 10 },
-    ]);
-
     res.json({
       totalFarmers,
       totalPolicies,
       activeToday,
-      avgPrice,
       signups,
-      cropDist,
     });
   } catch (err) {
-    console.error(err);
+    console.error("DASHBOARD STATS ERROR:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
