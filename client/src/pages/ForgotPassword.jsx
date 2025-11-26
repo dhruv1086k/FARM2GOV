@@ -11,9 +11,7 @@ export default function ForgotPassword() {
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  /* -----------------------------------------------------
-      STEP 1 -> SEND OTP
-  ------------------------------------------------------ */
+  /* ----------------------- STEP 1 → SEND OTP ----------------------- */
   const handleSendOtp = async (e) => {
     e.preventDefault();
     setStatus(null);
@@ -30,7 +28,7 @@ export default function ForgotPassword() {
         msg: "If an account exists, OTP has been sent to the registered email.",
       });
 
-      setStep(2); // 👉 Move to OTP step
+      setStep(2); // move to OTP screen
     } catch (err) {
       setStatus({ type: "error", msg: "Something went wrong." });
     } finally {
@@ -38,9 +36,7 @@ export default function ForgotPassword() {
     }
   };
 
-  /* -----------------------------------------------------
-      STEP 2 -> VERIFY OTP + RESET PASSWORD
-  ------------------------------------------------------ */
+  /* ----------------------- STEP 2 → RESET PASSWORD ----------------------- */
   const handleResetPassword = async (e) => {
     e.preventDefault();
     setStatus(null);
@@ -50,7 +46,7 @@ export default function ForgotPassword() {
 
     setLoading(true);
     try {
-      const res = await API.post("/auth/reset-password", {
+      await API.post("/auth/reset-password", {
         identifier,
         otp,
         newPassword,
@@ -71,93 +67,119 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F3F5E8] px-4">
-      <div className="w-full max-w-md bg-white shadow-xl rounded-2xl p-8">
-        <h2 className="text-3xl font-extrabold text-green-800 text-center">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-green-100 px-4 py-12">
+      <div className="w-full max-w-md bg-white/90 backdrop-blur-lg border border-green-100 shadow-2xl rounded-3xl p-10">
+
+        {/* Heading */}
+        <h2 className="text-4xl font-extrabold text-green-800 text-center tracking-tight">
           Forgot Password
         </h2>
 
+        {/* Status Message */}
         {status && (
           <p
-            className={`mt-4 text-center ${
-              status.type === "error" ? "text-red-600" : "text-green-600"
+            className={`mt-5 text-center font-medium p-3 rounded-lg ${
+              status.type === "error"
+                ? "bg-red-100 text-red-700"
+                : "bg-green-100 text-green-700"
             }`}
           >
             {status.msg}
           </p>
         )}
 
-        {/* -----------------------------------------------------
-            STEP 1 UI
-        ------------------------------------------------------ */}
+        {/* ------------------- STEP 1: SEND OTP ------------------- */}
         {step === 1 && (
-          <form className="mt-6 space-y-5" onSubmit={handleSendOtp}>
-            <div>
+          <form className="mt-8 space-y-6" onSubmit={handleSendOtp}>
+            
+            <div className="space-y-2">
               <label className="text-gray-700 font-medium">
                 Email or Phone Number
               </label>
               <input
                 type="text"
-                className="w-full mt-2 p-3 border rounded-lg focus:ring-2 focus:ring-green-600 outline-none"
+                className="w-full p-3 border border-gray-300 rounded-xl
+                           focus:ring-2 focus:ring-green-600 outline-none transition-all"
                 placeholder="email@example.com or 9123456789"
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
               />
             </div>
 
+            {/* SEND OTP BUTTON WITH LOADER */}
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-3 rounded-lg text-white font-medium transition ${
-                loading ? "bg-green-400" : "bg-green-700 hover:bg-green-800"
+              className={`w-full py-3 rounded-xl text-white font-semibold shadow-md transition-all flex items-center justify-center gap-3 ${
+                loading
+                  ? "bg-green-400 cursor-not-allowed"
+                  : "bg-green-700 hover:bg-green-800 hover:shadow-lg"
               }`}
             >
-              {loading ? "Sending..." : "Send Reset OTP"}
+              {loading ? (
+                <>
+                  <span className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                  Sending OTP...
+                </>
+              ) : (
+                "Send Reset OTP"
+              )}
             </button>
           </form>
         )}
 
-        {/* -----------------------------------------------------
-            STEP 2 UI — ENTER OTP + NEW PASSWORD
-        ------------------------------------------------------ */}
+        {/* ------------------- STEP 2: VERIFY OTP + RESET ------------------- */}
         {step === 2 && (
-          <form className="mt-6 space-y-5" onSubmit={handleResetPassword}>
-            <div>
+          <form className="mt-8 space-y-6" onSubmit={handleResetPassword}>
+            
+            <div className="space-y-2">
               <label className="text-gray-700 font-medium">
                 Enter OTP sent to your email
               </label>
               <input
                 type="text"
-                className="w-full mt-2 p-3 border rounded-lg focus:ring-2 focus:ring-green-600 outline-none"
+                className="w-full p-3 border border-gray-300 rounded-xl
+                           focus:ring-2 focus:ring-green-600 outline-none transition-all"
                 placeholder="6-digit OTP"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
               />
             </div>
 
-            <div>
+            <div className="space-y-2">
               <label className="text-gray-700 font-medium">New Password</label>
               <input
                 type="password"
-                className="w-full mt-2 p-3 border rounded-lg focus:ring-2 focus:ring-green-600 outline-none"
+                className="w-full p-3 border border-gray-300 rounded-xl
+                           focus:ring-2 focus:ring-green-600 outline-none transition-all"
                 placeholder="Enter new password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
               />
             </div>
 
+            {/* RESET BUTTON WITH LOADER */}
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-3 rounded-lg text-white font-medium transition ${
-                loading ? "bg-green-400" : "bg-green-700 hover:bg-green-800"
+              className={`w-full py-3 rounded-xl text-white font-semibold shadow-md transition-all flex items-center justify-center gap-3 ${
+                loading
+                  ? "bg-green-400 cursor-not-allowed"
+                  : "bg-green-700 hover:bg-green-800 hover:shadow-lg"
               }`}
             >
-              {loading ? "Please wait..." : "Reset Password"}
+              {loading ? (
+                <>
+                  <span className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                  Resetting...
+                </>
+              ) : (
+                "Reset Password"
+              )}
             </button>
 
             <p
-              className="text-green-700 text-center cursor-pointer"
+              className="text-green-700 text-center font-medium cursor-pointer hover:underline"
               onClick={() => setStep(1)}
             >
               Resend OTP
@@ -165,8 +187,12 @@ export default function ForgotPassword() {
           </form>
         )}
 
-        <p className="text-center mt-6 text-gray-700">
-          <Link to="/farmer/login" className="text-green-700 font-semibold">
+        {/* Back to Login */}
+        <p className="text-center mt-8 text-gray-700">
+          <Link
+            to="/farmer/login"
+            className="text-green-700 font-semibold hover:underline"
+          >
             Back to Login
           </Link>
         </p>

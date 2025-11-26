@@ -13,6 +13,8 @@ export default function SignupFarmer() {
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
 
   const handleSignup = async (e) => {
@@ -21,6 +23,10 @@ export default function SignupFarmer() {
     if (password !== confirmPassword) {
       return setError("Passwords do not match");
     }
+
+    setLoading(true);
+    setError("");
+    setSuccess(false);
 
     try {
       await API.post("/auth/farmer/signup", {
@@ -36,12 +42,15 @@ export default function SignupFarmer() {
       setTimeout(() => navigate("/farmer/login"), 2000);
     } catch (err) {
       setError("Signup failed. Please check details.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-green-100 px-4 py-12">
       <div className="w-full max-w-md bg-white/90 backdrop-blur-lg shadow-2xl rounded-3xl p-10 border border-green-100">
+        
         {/* Header */}
         <h2 className="text-4xl font-extrabold text-green-800 text-center tracking-tight">
           Farmer Registration
@@ -60,6 +69,7 @@ export default function SignupFarmer() {
         )}
 
         <form className="mt-8 space-y-6" onSubmit={handleSignup}>
+          
           <div className="space-y-2">
             <label className="text-gray-700 font-medium">Full Name</label>
             <input
@@ -108,9 +118,7 @@ export default function SignupFarmer() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-gray-700 font-medium">
-              Confirm Password
-            </label>
+            <label className="text-gray-700 font-medium">Confirm Password</label>
             <input
               type="password"
               className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-600 focus:border-green-600 transition-all outline-none"
@@ -120,18 +128,27 @@ export default function SignupFarmer() {
           </div>
 
           {/* Register Button */}
-          <button className="w-full py-3 rounded-xl bg-green-700 hover:bg-green-800 transition-all text-white font-semibold shadow-md hover:shadow-lg">
-            Register
+          <button
+            disabled={loading}
+            className={`w-full py-3 rounded-xl font-semibold text-white shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-3 ${
+              loading ? "bg-green-500 cursor-not-allowed" : "bg-green-700 hover:bg-green-800"
+            }`}
+          >
+            {loading ? (
+              <>
+                <span className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                Registering...
+              </>
+            ) : (
+              "Register"
+            )}
           </button>
         </form>
 
         {/* Footer */}
         <p className="text-center mt-8 text-gray-700">
           Already have an account?{" "}
-          <Link
-            to="/farmer/login"
-            className="text-green-700 font-semibold hover:underline"
-          >
+          <Link to="/farmer/login" className="text-green-700 font-semibold hover:underline">
             Login here
           </Link>
         </p>

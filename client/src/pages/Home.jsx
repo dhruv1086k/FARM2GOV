@@ -26,13 +26,13 @@ export default function Home() {
 
           <div className="flex gap-4 mt-6">
             <a href="/farmer/signup">
-              <button className="bg-green-700 hover:bg-green-800 text-white px-6 py-3 rounded-lg font-medium">
+              <button className="bg-green-700 hover:bg-green-800 text-white px-6 py-3 rounded-lg font-medium cursor-pointer">
                 Register as Farmer
               </button>
             </a>
 
             <a href="/farmer/login">
-              <button className="border border-gray-400 hover:bg-gray-100 px-6 py-3 rounded-lg font-medium">
+              <button className="border border-gray-400 hover:bg-gray-100 px-6 py-3 rounded-lg font-medium cursor-pointer">
                 Login as Farmer
               </button>
             </a>
@@ -51,7 +51,7 @@ export default function Home() {
 
       {/* Modules Title */}
       <h2 className="text-3xl font-bold text-center text-green-900 mt-10">
-        Modules
+        Farmer Services
       </h2>
 
       {/* Modules Section */}
@@ -139,8 +139,8 @@ function ModuleCard({ icon, title }) {
     <div className="bg-white p-6 rounded-xl shadow hover:shadow-md transition">
       <img src={icon} alt="" className="w-12 mx-auto" />
       <h3 className="text-lg font-semibold text-center mt-4">{title}</h3>
-      <button className="w-full bg-green-700 hover:bg-green-800 text-white py-2 mt-4 rounded-lg">
-        Open Module
+      <button className="w-full bg-green-700 cursor-pointer hover:bg-green-800 text-white py-2 mt-4 rounded-lg">
+        Explore
       </button>
     </div>
   );
