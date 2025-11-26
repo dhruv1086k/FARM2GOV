@@ -1,3 +1,4 @@
+// server/models/Farmer.js
 import mongoose from "mongoose";
 
 const CropSchema = new mongoose.Schema({
@@ -8,24 +9,49 @@ const CropSchema = new mongoose.Schema({
 
 const FarmerSchema = new mongoose.Schema(
   {
+    /* ---------------------------------------------------------
+       BASIC INFORMATION
+    --------------------------------------------------------- */
     name: { type: String, required: true },
     phone: { type: String, required: true, unique: true },
-    email: { type: String },
+    email: { type: String, default: null },
+
     password: { type: String, required: true },
+
     state: { type: String },
     language: { type: String, default: "en" },
 
+    /* ---------------------------------------------------------
+       ACCOUNT STATUS
+    --------------------------------------------------------- */
     active: { type: Boolean, default: true },
-
-    // ✔ REQUIRED FOR ACTIVE TODAY
     lastLogin: { type: Date, default: null },
 
+    /* ---------------------------------------------------------
+       PRICE PREDICTION HISTORY
+    --------------------------------------------------------- */
     lastPredictedPrice: { type: Number, default: null },
 
+    /* ---------------------------------------------------------
+       CROPS ADDED BY FARMER
+    --------------------------------------------------------- */
     crops: [CropSchema],
+
+    /* ---------------------------------------------------------
+       PASSWORD RESET (OTP-BASED)
+    --------------------------------------------------------- */
+
+    // OTP sent to user
+    resetOtp: { type: String, default: null },
+
+    // OTP expiration time
+    resetOtpExpires: { type: Date, default: null },
+
+    // Track wrong attempts
+    resetOtpAttempts: { type: Number, default: 0 },
   },
   {
-    timestamps: true,
+    timestamps: true, // createdAt + updatedAt
   }
 );
 
