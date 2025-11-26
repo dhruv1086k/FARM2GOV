@@ -40,9 +40,7 @@ export default function FarmerDashboard() {
 
       {/* Profile Card */}
       <div className="mt-10 bg-white/90 backdrop-blur-lg border border-green-100 shadow-xl rounded-3xl max-w-3xl mx-auto p-10">
-        <h2 className="text-2xl font-bold text-green-900 mb-6">
-          Your Profile
-        </h2>
+        <h2 className="text-2xl font-bold text-green-900 mb-6">Your Profile</h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-gray-700">
           <ProfileRow label="Full Name" value={profile.name} />

@@ -103,7 +103,7 @@ export const farmerLogin = async (req, res) => {
 };
 
 /* =====================================================================
-    FORGOT PASSWORD — SEND OTP
+    FORGOT PASSWORD — SEND OTP (RESEND)
 ===================================================================== */
 export const forgotPassword = async (req, res) => {
   try {
@@ -113,12 +113,11 @@ export const forgotPassword = async (req, res) => {
       return res.status(400).json({ message: "Email or phone required" });
     }
 
-    // Find farmer
     const farmer = await Farmer.findOne({
       $or: [{ email: identifier }, { phone: identifier }],
     });
 
-    // Always return success to avoid enumeration attack
+    // Generic response to hide account existence
     if (!farmer) {
       return res.json({
         success: true,
@@ -126,7 +125,7 @@ export const forgotPassword = async (req, res) => {
       });
     }
 
-    // Generate 6-digit OTP
+    // Create OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
     farmer.resetOtp = otp;
@@ -135,19 +134,19 @@ export const forgotPassword = async (req, res) => {
 
     await farmer.save();
 
-    // Prepare dynamic email template replacements
+    // Build template (unchanged)
     const htmlEmail = getOtpEmailTemplate({
       OTP: otp,
       USER_EMAIL: farmer.email,
       YEAR: new Date().getFullYear(),
     });
 
-    // Send email
+    // SEND USING RESEND
     await sendEmail({
       to: farmer.email,
       subject: "Farm2Gov — Reset Password OTP",
       html: htmlEmail,
-      text: `Your OTP is ${otp} (valid for 10 mins).`,
+      text: `Your OTP is ${otp} (valid for 10 minutes).`,
     });
 
     return res.json({
@@ -264,7 +263,7 @@ export const adminLogin = async (req, res) => {
 };
 
 /* =====================================================================
-    EMAIL TEMPLATE FUNCTION
+    EMAIL TEMPLATE FUNCTION (UNTOUCHED)
 ===================================================================== */
 function getOtpEmailTemplate({ OTP, USER_EMAIL, YEAR }) {
   return `
@@ -282,7 +281,6 @@ function getOtpEmailTemplate({ OTP, USER_EMAIL, YEAR }) {
     <tr><td align="center">
       <table width="500" style="background:white; border-radius:12px; overflow:hidden;">
         
-        <!-- Header -->
         <tr>
           <td style="padding:20px 24px; background:linear-gradient(90deg,rgba(42, 123, 155, 1) 0%, rgba(87, 199, 133, 1) 0%, rgba(0, 149, 58, 1) 100%); color:white;">
             <table width="100%">
@@ -293,7 +291,6 @@ function getOtpEmailTemplate({ OTP, USER_EMAIL, YEAR }) {
           </td>
         </tr>
 
-        <!-- Body -->
         <tr>
           <td style="padding:28px 32px;">
             <h1 style="margin:0; font-size:22px;">Reset your password</h1>
@@ -305,8 +302,6 @@ function getOtpEmailTemplate({ OTP, USER_EMAIL, YEAR }) {
               </div>
               <p style="color:#64748b; margin-top:6px;">Valid for 10 minutes</p>
             </div>
-
-            <!-- Removed the “Use this OTP” button -->
 
             <p style="font-size:13px; color:#475569; margin-top:20px; text-align:center;">
               Enter this OTP in the app to proceed.
@@ -320,7 +315,6 @@ function getOtpEmailTemplate({ OTP, USER_EMAIL, YEAR }) {
           </td>
         </tr>
 
-        <!-- Footer -->
         <tr>
           <td style="background:#f8fafc; padding:18px; text-align:center; font-size:12px; color:#94a3b8;">
             Farm2Gov © ${YEAR}.  
