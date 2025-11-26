@@ -13,10 +13,12 @@ dotenv.config();
 const app = express();
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://farm-2-gov.vercel.app/"],
+    origin: ["http://localhost:3000", "https://farm-2-gov.vercel.app"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
   })
 );
+
 app.use(express.json());
 
 // connect DB
