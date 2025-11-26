@@ -22,12 +22,12 @@ export default function Navbar() {
 
   return (
     <nav className="bg-gradient-to-r from-green-700 to-green-600 text-white shadow-xl sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-6 py-3.5 flex items-center justify-between">
         <a href="/">
           <img
             src={logo}
             alt="Farm2Gov"
-            className="h-12 w-auto drop-shadow-md"
+            className="h-10 w-auto drop-shadow-md"
           />
         </a>
 
