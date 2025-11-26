@@ -19,6 +19,8 @@ import AdminPolicies from "./pages/AdminPolicies.jsx";
 import PricePredictor from "./pages/PricePredictor.jsx";
 import AuthProvider from "./context/AuthContext.jsx";
 import Footer from "./components/Footer.jsx";
+import ForgotPassword from "./pages/ForgotPassword.jsx";
+import ResetPasswordWithOtp from "./pages/ResetPasswordWithOtp.jsx";
 
 export default function App() {
   return (
@@ -35,6 +37,8 @@ export default function App() {
           {/* FARMER PUBLIC */}
           <Route path="/farmer/login" element={<LoginFarmer />} />
           <Route path="/farmer/signup" element={<SignupFarmer />} />
+          <Route path="/farmer/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPasswordWithOtp />} />
 
           {/* FARMER PROTECTED */}
           <Route
