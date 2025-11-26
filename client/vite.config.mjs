@@ -2,17 +2,26 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [react(), tailwindcss()],
 
+  // Only needed for development
   server: {
     host: true,
     port: 3000,
     strictPort: true,
-    allowedHosts: ["05498596c4e0.ngrok-free.app", "*.ngrok-free.app"],
 
-    proxy: {
-      "/api": "http://localhost:5000",
-    },
+    // DEVELOPMENT PROXY ONLY
+    proxy:
+      mode === "development"
+        ? {
+            "/api": "http://localhost:5001",
+          }
+        : undefined,
   },
-});
+
+  // Production build settings
+  build: {
+    outDir: "dist",
+  },
+}));

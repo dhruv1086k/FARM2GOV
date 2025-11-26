@@ -37,7 +37,6 @@ export default function LoginFarmer() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-green-100 px-4 py-10">
       <div className="w-full max-w-md bg-white/90 backdrop-blur-lg shadow-2xl rounded-3xl p-10 border border-green-100">
-        
         {/* Header */}
         <div className="text-center">
           <h2 className="text-4xl font-extrabold text-green-800 tracking-tight">
@@ -57,7 +56,6 @@ export default function LoginFarmer() {
 
         {/* Form */}
         <form className="mt-8 space-y-6" onSubmit={handleLogin}>
-          
           <div className="space-y-2">
             <label className="text-gray-700 font-medium">Phone Number</label>
             <input
@@ -90,7 +88,11 @@ export default function LoginFarmer() {
             disabled={loading}
             className={`w-full py-3 rounded-xl font-semibold text-white shadow-md hover:shadow-lg 
               transition-all flex items-center justify-center gap-3
-              ${loading ? "bg-green-500 cursor-not-allowed" : "bg-green-700 hover:bg-green-800"}`}
+              ${
+                loading
+                  ? "bg-green-500 cursor-not-allowed"
+                  : "bg-green-700 hover:bg-green-800"
+              }`}
           >
             {loading ? (
               <>
@@ -105,14 +107,20 @@ export default function LoginFarmer() {
 
         {/* Footer Links */}
         <div className="mt-6 flex justify-between items-center">
-          <Link to="/farmer/forgot-password" className="text-sm text-green-700 hover:underline">
+          <Link
+            to="/farmer/forgot-password"
+            className="text-sm text-green-700 hover:underline"
+          >
             Forgot password?
           </Link>
         </div>
 
         <p className="text-center mt-8 text-gray-700">
           Don’t have an account?{" "}
-          <Link to="/farmer/signup" className="text-green-700 font-semibold hover:underline">
+          <Link
+            to="/farmer/signup"
+            className="text-green-700 font-semibold hover:underline"
+          >
             Register here
           </Link>
         </p>
