@@ -104,6 +104,21 @@ body {
   animation: menuItem 0.32s ease-out forwards;
 }
 
+/* ===============================
+   SELECT DROPDOWN OPTIONS
+   Fix: options inherit OS default bg (white), making white text invisible
+================================*/
+select option {
+  background-color: #1e293b;   /* slate-800 — matches dark theme */
+  color: #f1f5f9;              /* slate-100 */
+}
+
+select option:checked,
+select option:hover {
+  background-color: #166534;   /* green-800 */
+  color: #ffffff;
+}
+
 /* (Optional) Stagger effect for menu items */
 .animate-menuItem:nth-child(1) {
   animation-delay: 0.05s;
