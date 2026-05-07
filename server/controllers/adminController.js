@@ -1,5 +1,6 @@
 import Farmer from "../models/Farmer.js";
 import Policy from "../models/Policy.js";
+import Crop from "../models/Crop.js";
 
 // ======================
 // ADMIN DASHBOARD STATS
@@ -8,17 +9,16 @@ export const getDashboardStats = async (req, res) => {
   try {
     const totalFarmers = await Farmer.countDocuments();
     const totalPolicies = await Policy.countDocuments();
+    const totalCrops = await Crop.countDocuments();
 
-    // ✔ Active today = farmers who logged in today
+    // Active today = farmers who logged in within last 24h
     const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-
     const activeToday = await Farmer.countDocuments({
-      lastLogin: { $gte: dayAgo }, // 🔥 FIXED
+      lastLogin: { $gte: dayAgo },
     });
 
-    // ✔ Signups Last 30 Days (createdAt)
+    // Signups grouped by day for last 30 days
     const thirty = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-
     const signups = await Farmer.aggregate([
       { $match: { createdAt: { $gte: thirty } } },
       {
@@ -33,6 +33,7 @@ export const getDashboardStats = async (req, res) => {
     res.json({
       totalFarmers,
       totalPolicies,
+      totalCrops,
       activeToday,
       signups,
     });

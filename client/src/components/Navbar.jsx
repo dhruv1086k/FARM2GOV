@@ -1,58 +1,195 @@
-import { Link } from "react-router-dom";
-import { useContext, useState } from "react";
+// client/src/components/Navbar.jsx
+import { Link, useLocation } from "react-router-dom";
+import { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext.jsx";
+import {
+  FaLeaf,
+  FaHome,
+  FaStore,
+  FaRobot,
+  FaFileAlt,
+  FaMicrophone,
+  FaBug,
+  FaTachometerAlt,
+  FaBars,
+  FaTimes,
+  FaSignOutAlt,
+} from "react-icons/fa";
 import logo from "../assets/logo.png";
 
 export default function Navbar() {
   const { user, logout } = useContext(AuthContext);
   const [isOpen, setIsOpen] = useState(false);
-  const [animate, setAnimate] = useState(false); // for slide up animation
+  const [scrolled, setScrolled] = useState(false);
+  const location = useLocation();
 
-  const toggleMenu = () => {
-    if (isOpen) {
-      setAnimate(true);
-      setTimeout(() => {
-        setIsOpen(false);
-        setAnimate(false);
-      }, 280);
-    } else {
-      setIsOpen(true);
-    }
-  };
+  // Add shadow/bg opacity when scrolled
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setIsOpen(false);
+  }, [location.pathname]);
+
+  const navLinks = [
+    { to: "/", label: "Home", icon: FaHome },
+    { to: "/marketplace", label: "Marketplace", icon: FaStore },
+    { to: "/predict", label: "AI Predictor", icon: FaRobot },
+    { to: "/policies", label: "Policies", icon: FaFileAlt },
+    { to: "/voice-assistant", label: "Voice AI", icon: FaMicrophone },
+    { to: "/disease-detect", label: "Disease Detect", icon: FaBug },
+  ];
 
   return (
-    <nav className="bg-gradient-to-r from-green-700 to-green-600 text-white shadow-xl sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-6 py-3.5 flex items-center justify-between">
-        <a href="/">
-          <img
-            src={logo}
-            alt="Farm2Gov"
-            className="h-10 w-auto drop-shadow-md"
-          />
-        </a>
+    <nav
+      className={`sticky top-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? "bg-green-800/95 backdrop-blur-md shadow-xl"
+          : "bg-gradient-to-r from-green-800 to-green-700"
+      }`}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+        {/* Logo */}
+        <Link to="/" className="flex items-center gap-2 shrink-0">
+          <img src={logo} alt="Farm2Gov" className="h-9 w-auto drop-shadow" />
+        </Link>
 
-        {/* Mobile Toggle Button */}
-        <button
-          className="md:hidden text-white text-3xl transition"
-          onClick={toggleMenu}
-        >
-          {isOpen ? "✖" : "☰"}
-        </button>
-
-        {/* Desktop Menu */}
-        <div className="hidden md:flex items-center gap-8 text-sm font-semibold">
-          <NavItems user={user} logout={logout} />
+        {/* Desktop Navigation */}
+        <div className="hidden lg:flex items-center gap-1">
+          {navLinks.map((link) => {
+            const active = location.pathname === link.to;
+            return (
+              <Link
+                key={link.to}
+                to={link.to}
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                  active
+                    ? "bg-white/20 text-white"
+                    : "text-green-100 hover:bg-white/10 hover:text-white"
+                }`}
+              >
+                <link.icon className="text-xs" />
+                {link.label}
+              </Link>
+            );
+          })}
         </div>
+
+        {/* Desktop Auth Buttons */}
+        <div className="hidden lg:flex items-center gap-3">
+          {user?.role === "farmer" && (
+            <Link
+              to="/farmer/dashboard"
+              className="flex items-center gap-2 px-4 py-2 bg-white/15 hover:bg-white/25 text-white rounded-lg text-sm font-semibold transition"
+            >
+              <FaTachometerAlt className="text-xs" />
+              Dashboard
+            </Link>
+          )}
+
+          {user?.role === "admin" && (
+            <Link
+              to="/admin/dashboard"
+              className="flex items-center gap-2 px-4 py-2 bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-200 rounded-lg text-sm font-semibold transition"
+            >
+              <FaTachometerAlt className="text-xs" />
+              Admin Panel
+            </Link>
+          )}
+
+          {!user ? (
+            <>
+              <Link
+                to="/farmer/login"
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-lg text-sm font-semibold transition"
+              >
+                Login
+              </Link>
+              <Link
+                to="/farmer/signup"
+                className="px-4 py-2 bg-white text-green-800 rounded-lg text-sm font-bold hover:bg-green-50 shadow transition"
+              >
+                Register Free
+              </Link>
+            </>
+          ) : (
+            <LogoutButton logout={logout} />
+          )}
+        </div>
+
+        {/* Mobile Hamburger */}
+        <button
+          className="lg:hidden text-white p-2 rounded-lg hover:bg-white/10 transition"
+          onClick={() => setIsOpen((v) => !v)}
+          aria-label="Toggle menu"
+        >
+          {isOpen ? <FaTimes className="text-xl" /> : <FaBars className="text-xl" />}
+        </button>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Drawer */}
       {isOpen && (
-        <div
-          className={`md:hidden bg-green-700/95 px-6 pb-5 backdrop-blur-md shadow-lg 
-          ${animate ? "animate-slideUp" : "animate-slideDown"}`}
-        >
-          <div className="flex flex-col gap-4 text-sm font-medium pt-3">
-            <NavItems user={user} logout={logout} mobile />
+        <div className="lg:hidden bg-green-800/98 backdrop-blur-md border-t border-white/10 px-4 pb-6 pt-3 space-y-1">
+          {navLinks.map((link) => {
+            const active = location.pathname === link.to;
+            return (
+              <Link
+                key={link.to}
+                to={link.to}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition ${
+                  active
+                    ? "bg-white/20 text-white"
+                    : "text-green-100 hover:bg-white/10 hover:text-white"
+                }`}
+              >
+                <link.icon />
+                {link.label}
+              </Link>
+            );
+          })}
+
+          {/* Mobile auth section */}
+          <div className="pt-3 border-t border-white/10 mt-2 space-y-2">
+            {user?.role === "farmer" && (
+              <Link
+                to="/farmer/dashboard"
+                className="flex items-center gap-3 px-4 py-3 bg-white/15 text-white rounded-xl text-sm font-semibold"
+              >
+                <FaTachometerAlt />
+                My Dashboard
+              </Link>
+            )}
+            {user?.role === "admin" && (
+              <Link
+                to="/admin/dashboard"
+                className="flex items-center gap-3 px-4 py-3 bg-yellow-500/20 text-yellow-200 rounded-xl text-sm font-semibold"
+              >
+                <FaTachometerAlt />
+                Admin Panel
+              </Link>
+            )}
+            {!user ? (
+              <>
+                <Link
+                  to="/farmer/login"
+                  className="block w-full text-center px-4 py-3 border border-white/30 text-white rounded-xl text-sm font-semibold hover:bg-white/10 transition"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/farmer/signup"
+                  className="block w-full text-center px-4 py-3 bg-white text-green-800 rounded-xl text-sm font-bold hover:bg-green-50 transition"
+                >
+                  Register Free
+                </Link>
+              </>
+            ) : (
+              <LogoutButton logout={logout} fullWidth />
+            )}
           </div>
         </div>
       )}
@@ -60,75 +197,30 @@ export default function Navbar() {
   );
 }
 
-/* ---------- Nav Items ---------- */
-
-function NavItems({ user, logout, mobile }) {
+/* ─── Logout Button ───────────────────────── */
+function LogoutButton({ logout, fullWidth = false }) {
   const [loading, setLoading] = useState(false);
 
-  const logoutHandler = async () => {
+  const handleLogout = async () => {
     setLoading(true);
-    await new Promise((res) => setTimeout(res, 700)); // smooth loader
+    await new Promise((r) => setTimeout(r, 600));
     logout();
   };
 
   return (
-    <>
-      <Link to="/" className="hover:text-yellow-300">
-        Home
-      </Link>
-
-      {user?.role === "farmer" && (
-        <Link to="/farmer/dashboard" className="hover:text-yellow-300">
-          Dashboard
-        </Link>
-      )}
-
-      {user?.role === "admin" && (
-        <Link to="/admin/dashboard" className="hover:text-yellow-300">
-          Admin
-        </Link>
-      )}
-
-      <Link to="/policies" className="hover:text-yellow-300">
-        Policies
-      </Link>
-
-      {!user ? (
-        <>
-          <Link
-            to="/farmer/login"
-            className="px-4 py-2 bg-white/10 rounded-lg backdrop-blur-sm"
-          >
-            Farmer Login
-          </Link>
-
-          {/*
-            ❌ Admin login button hidden as requested
-            ✔ Un-comment if needed in future:
-
-          <Link
-            to="/admin/login"
-            className="px-4 py-2 bg-white/10 rounded-lg backdrop-blur-sm"
-          >
-            Admin Login
-          </Link>
-          */}
-        </>
+    <button
+      onClick={handleLogout}
+      disabled={loading}
+      className={`flex items-center justify-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-semibold transition ${
+        fullWidth ? "w-full" : ""
+      } ${loading ? "opacity-70 cursor-not-allowed" : ""}`}
+    >
+      {loading ? (
+        <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
       ) : (
-        <button
-          onClick={logoutHandler}
-          disabled={loading}
-          className={`px-4 py-2 bg-red-500 hover:bg-red-600 rounded-lg font-semibold flex items-center justify-center gap-2 ${
-            mobile ? "w-full" : ""
-          }`}
-        >
-          {loading ? (
-            <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-          ) : (
-            "Logout"
-          )}
-        </button>
+        <FaSignOutAlt className="text-xs" />
       )}
-    </>
+      {loading ? "Logging out..." : "Logout"}
+    </button>
   );
 }
